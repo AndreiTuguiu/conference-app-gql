@@ -29,6 +29,7 @@ type Speaker {
   isMainSpeaker: Boolean
   nationality: String
   rating: Float
+
 }
 type ConferenceList {
   values: [Conference!]!
@@ -41,4 +42,5 @@ input ConferenceFilterInput {
 }
 extend type Query {
   conferenceList(pager: PagerInput!, filters: ConferenceFilterInput): ConferenceList
+  conference (id:ID): Conference
 }
