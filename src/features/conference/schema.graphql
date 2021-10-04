@@ -36,6 +36,12 @@ type ConferenceList {
   values: [Conference!]!
   pagination(pager: PagerInput!, filters: ConferenceFilterInput): Pagination
 }
+
+type AttendConference{
+  code:String
+  suggestedConferences: [Conference!]
+}
+
 input ConferenceFilterInput {
   startDate: DateTime
   endDate: DateTime
@@ -53,5 +59,6 @@ extend type Query {
 }
 
 extend type Mutation{
-  attend(input: Attendee): String
+  attend(input: Attendee): AttendConference
+  withdraw(input: Attendee): Int
 }
