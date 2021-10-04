@@ -1,6 +1,6 @@
 const { SQLDataSource } = require('../../utils/sqlDataSource')
 
-const conferenceColumns=['Id', 'Name', 'ConferenceTypeId', 'LocationId', 'CategoryId', 'StartDate', 'EndDate']
+const conferenceColumns = ['Id', 'Name', 'ConferenceTypeId', 'LocationId', 'CategoryId', 'StartDate', 'EndDate']
 
 class ConferenceDb extends SQLDataSource {
   generateWhereClause(queryBuilder, filters = {}) {
@@ -26,14 +26,37 @@ class ConferenceDb extends SQLDataSource {
     return await this.knex('Conference').count('Id', { as: 'TotalCount' }).modify(this.generateWhereClause, filters).first()
   }
 
-  async getConferenceById(id){
+  async getConferenceById(id) {
     const result = await this.knex
-    .select(...conferenceColumns)
-    .from('Conference')
-    .where('Id',id)
-    .first()
+      .select(...conferenceColumns)
+      .from('Conference')
+      .where('Id', id)
+      .first()
     return result
+  }
 
+  async updateConferenceXAttendee({ attendeeEmail, conferenceId, statusId }) {
+    const existing = await this.knex
+      .select('Id', 'AttendeeEmail', 'ConferenceId')
+      .from('ConferenceXAttendee')
+      .where('AttendeeEmail', attendeeEmail)
+      .andWhere('ConferenceId', conferenceId)
+      .first()
+
+    const attendeeInfo = {
+      AttendeeEmail: attendeeEmail,
+      ConferenceId: conferenceId,
+      StatusId: statusId
+    }
+
+    let result
+    if (existing?.id) {
+      result = await this.knex('ConferenceXAttendee').update(attendeeInfo, 'StatusId').where('Id', existing?.id)
+    } else {
+      result = await this.knex('ConferenceXAttendee').returning('StatusId').insert(attendeeInfo)
+    }
+
+    return result[0]
   }
 }
 
