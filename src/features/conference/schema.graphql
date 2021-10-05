@@ -10,7 +10,6 @@ type Conference {
   status(userEmail: String!): Status
 }
 
-
 type Location {
   id: ID!
   name: String
@@ -22,14 +21,56 @@ type Location {
   country: Country!
 }
 
-
 type Speaker {
   id: ID!
   name: String
   isMainSpeaker: Boolean
   nationality: String
   rating: Float
+}
 
+input ConferenceInput {
+  id: ID
+  name: String!
+  startDate: DateTime!
+  endDate: DateTime!
+  organizerEmail: String!
+  type: TypeInput
+  category: CategoryInput
+  location: LocationInput!
+  speakers: [SpeakerInput!]!
+  deleteSpeakers: [ID]
+}
+
+input TypeInput{
+  id: Int
+  name: String!
+  code: String
+}
+
+input CategoryInput{
+  id: Int
+  name: String!
+  code: String
+}
+
+input LocationInput {
+  id: ID
+  name: String
+  address: String
+  latitude: String
+  longitude: String
+  cityId: Int!
+  countyId: Int!
+  countryId: Int!
+}
+
+input SpeakerInput{
+  id: ID
+  name: String
+  isMainSpeaker: Boolean
+  nationality: String
+  rating: Float
 }
 
 type ConferenceList {
@@ -37,28 +78,29 @@ type ConferenceList {
   pagination(pager: PagerInput!, filters: ConferenceFilterInput): Pagination
 }
 
-type AttendConference{
-  code:String
+type AttendConference {
+  code: String
   suggestedConferences: [Conference!]
 }
 
 input ConferenceFilterInput {
   startDate: DateTime
   endDate: DateTime
-  organizerEmail:String
+  organizerEmail: String
 }
 
-input Attendee{
+input Attendee {
   attendeeEmail: String!
   conferenceId: ID!
 }
 
 extend type Query {
   conferenceList(pager: PagerInput!, filters: ConferenceFilterInput): ConferenceList
-  conference (id:ID): Conference
+  conference(id: ID): Conference
 }
 
-extend type Mutation{
+extend type Mutation {
   attend(input: Attendee): AttendConference
   withdraw(input: Attendee): Int
+  saveConference(input: ConferenceInput): Conference!
 }

@@ -59,14 +59,29 @@ const conferenceResolvers = {
       const statusId = await dataSources.conferenceDb.updateConferenceXAttendee(updateInput)
       const suggestedConferences = await dataSources.conferenceApi.getConferenceSuggestions(input)
       const code = statusId ? randomCharacters(10) : null
-
       return { suggestedConferences, code }
     },
-    withdraw: async (_parent, {input},{dataSources},_info) =>{
-        const updateInput={...input,statusId: status.Withdrawn}
-        const statusId= await dataSources.conferenceDb.updateConferenceXAttendee(updateInput)
-
-        return statusId
+    withdraw: async (_parent, { input }, { dataSources }, _info) => {
+      const updateInput = { ...input, statusId: status.Withdrawn }
+      const statusId = await dataSources.conferenceDb.updateConferenceXAttendee(updateInput)
+      return statusId
+    },
+    saveConference: async (_parent, { input }, { dataSources }, _info) => {
+      const location = await dataSources.conferenceDb.updateLocation(input.location)
+      const updateConference = await dataSources.conferenceDb.updateConference({ ...input, location })
+      const speakers = await Promise.all(
+        input.speakers.map(async speaker => {
+          const updateSpeaker = await dataSources.conferenceDb.updateSpeaker(speaker)
+          const isMainSpeaker = await dataSources.conferenceDb.updateConferenceXSpeaker({
+            speakerId: updateSpeaker.id,
+            isMainSpeaker: speaker.isMainSpeaker,
+            conferenceId: updateConference.id
+          })
+          return { ...updateSpeaker, isMainSpeaker }
+        })
+      )
+      input?.deleteSpeakers?.length > 0 && (await dataSources.conferenceDb.deleteSpeaker(input.deleteSpeakers))
+      return { ...updateConference, location, speakers }
     }
   }
 }
