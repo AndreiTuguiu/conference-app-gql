@@ -4,7 +4,7 @@ const {RESTDataSource} = require('apollo-datasource-rest')
 class ConferenceApi extends RESTDataSource{
     constructor(){
         super()
-        this.baseURL = process.env.API_URL
+        this.baseURL = process.env.API1_URL
     }
     async getConferenceSuggestions(){
         return await this.get('suggestions/List')

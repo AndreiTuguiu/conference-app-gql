@@ -9,6 +9,10 @@ const conferenceResolvers = {
     conference: async (_parent, { id }, { dataSources }, _info) => {
       const data = await dataSources.conferenceDb.getConferenceById(id)
       return data
+    },
+    users: async (_parent, { id }, { dataSources }, _info) => {
+      const data = await dataSources.conferenceDb.getUsers(id)
+      return data
     }
   },
   ConferenceList: {
@@ -25,7 +29,7 @@ const conferenceResolvers = {
     category: async ({ categoryId }, _params, { dataLoaders }, _info) => {
       const category = await dataLoaders.categoryById.load(categoryId)
       return category
-    },
+    },v
     location: async ({ locationId }, _params, { dataLoaders }, _info) => {
       const location = await dataLoaders.locationById.load(locationId)
       return location
